@@ -85,7 +85,7 @@ jobs:
           for job in $JOBS; do 
             varname=COMPARE_READ_OBJECT_NAME_$job
             npx wrangler r2 object put $BUCKET/${!varname} --file=$job'_read.jpg'
-            varname=COMPARE_WRITE_OBJECT_NAM_$job
+            varname=COMPARE_WRITE_OBJECT_NAME_$job
             npx wrangler r2 object put $BUCKET/${!varname} --file=$job'_write.jpg'
           done
       - name: 'comment PR'
