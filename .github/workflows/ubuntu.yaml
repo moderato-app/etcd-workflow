@@ -68,32 +68,8 @@ jobs:
       - name: print md
         id: set_content
         run: |
-          CONTENT=$(cat <<EOF
-      Read-Write Heatmap
-      main vs PR:
-      <details>
-      <summary><kbd>read</kbd></summary>
-      <img alt="read" src="$CSV_FILE_PREFIX/$COMPARE_READ_OBJECT_NAME_PR">
-      </details>
-      <details>
-      <summary><kbd>write</kbd></summary>
-      <img alt="write" src="$CSV_FILE_PREFIX/$COMPARE_WRITE_OBJECT_NAME_PR">
-      </details>
-
-      main vs main:
-      <details>
-      <summary><kbd>read</kbd></summary>
-      <img alt="read" src="$CSV_FILE_PREFIX/$COMPARE_READ_OBJECT_NAME_main_again">
-      </details>
-      <details>
-      <summary><kbd>write</kbd></summary>
-      <img alt="write" src="$CSV_FILE_PREFIX/$COMPARE_WRITE_OBJECT_NAME_main_again">
-      </details>
-
-      [archive.zip]($CSV_FILE_PREFIX/$ZIP_OBJECT_NAME)
-      EOF
-          )
-  
+          CONTENT=$(cat ./github/workflows/benchmark-pr-template.txt)
+          CONTENT=$(echo "$CONTENT" | envsubst)
           echo $CONTENT >> "$GITHUB_STEP_SUMMARY"
           echo "::set-output name=content::$CONTENT"
       - name: install wrangler
