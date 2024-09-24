@@ -97,4 +97,4 @@ jobs:
           github-token: ${{ secrets.TOKEN_GITHUB }}
           script: |
             const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
-            github.issues.createComment({ issue_number, owner, repo, body: "${{GITHUB_STEP_SUMMARY}}"});
+            github.issues.createComment({ issue_number, owner, repo, body: "$GITHUB_STEP_SUMMARY"});
