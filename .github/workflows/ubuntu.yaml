@@ -91,6 +91,7 @@ jobs:
           </details>
             
           [archive.zip]($CSV_FILE_PREFIX/$ZIP_OBJECT_NAME)
+          EOF
           )
   
           echo $CONTENT >> "$GITHUB_STEP_SUMMARY"
