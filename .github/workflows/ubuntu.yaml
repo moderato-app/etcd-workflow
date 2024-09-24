@@ -71,7 +71,9 @@ jobs:
           CONTENT=$(cat ./scripts/benchmark-pr-template.txt)
           CONTENT=$(echo "$CONTENT" | envsubst)
           echo $CONTENT >> "$GITHUB_STEP_SUMMARY"
-          echo "::set-output name=content::$CONTENT"
+          echo "content<<EOF" >> $GITHUB_ENV
+          echo "$CONTENT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
       - name: install wrangler
         run: npm install wrangler
       - name: upload to r2
@@ -90,9 +92,10 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const content = process.env.content;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `${{ steps.set_content.outputs.content }}`
+              body: content
             })
