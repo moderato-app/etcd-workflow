@@ -15,21 +15,21 @@ jobs:
     with:
       runs-on: ubuntu-latest
       branch: main
-      script: benchmark-small.sh
+      script: benchmark-middle.sh
 
   main_again:
     uses: ./.github/workflows/benchmark-template.yaml
     with:
       runs-on: ubuntu-latest
       branch: main
-      script: benchmark-small.sh
+      script: benchmark-middle.sh
 
   pr:
     uses: ./.github/workflows/benchmark-template.yaml
     with:
       runs-on: ubuntu-latest
       branch: ${{ github.event.pull_request.head.ref }}
-      script: benchmark-small.sh
+      script: benchmark-middle.sh
 
   compare:
     needs: [ main, pr, main_again ]
@@ -90,3 +90,11 @@ jobs:
             varname=COMPARE_WRITE_OBJECT_NAM_$job
             npx wrangler r2 object put $BUCKET/${!varname} --file=$job'_write.jpg'
           done
+      - name: 'comment PR'
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.TOKEN_GITHUB }}
+          script: |
+            const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
+            github.issues.createComment({ issue_number, owner, repo, body: "${{GITHUB_STEP_SUMMARY}}"});

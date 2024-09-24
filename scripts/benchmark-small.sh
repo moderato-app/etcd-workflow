@@ -1,5 +1,3 @@
-#git clone https://github.com/clement2026/etcd.git etcd --single-branch --branch main
-
 make build tools && chmod -R u+x ./
 
 export RATIO_LIST="4/1"
