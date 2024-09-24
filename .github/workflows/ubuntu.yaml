@@ -63,7 +63,7 @@ jobs:
           
           for job in $JOBS; do
             echo "COMPARE_READ_OBJECT_NAME_$job=etcd-benchmark-$DATE-$job-read.jpg" >> $GITHUB_ENV
-            echo "COMPARE_WRITE_OBJECT_NAM_$job=etcd-benchmark-$DATE-$job-write.jpg" >> $GITHUB_ENV
+            echo "COMPARE_WRITE_OBJECT_NAME_$job=etcd-benchmark-$DATE-$job-write.jpg" >> $GITHUB_ENV
           done
       - name: print md
         id: set_content
