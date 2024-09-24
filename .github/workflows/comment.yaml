@@ -17,9 +17,6 @@ jobs:
       - name: print md
         id: set_content
         run: |
-      - name: print md
-        id: set_content
-        run: |
           CONTENT=$(cat ./scripts/benchmark-pr-template.txt)
           CONTENT=$(echo "$CONTENT" | envsubst)
           echo $CONTENT >> "$GITHUB_STEP_SUMMARY"
