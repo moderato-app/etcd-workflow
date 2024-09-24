@@ -20,7 +20,7 @@ jobs:
       - name: print md
         id: set_content
         run: |
-          CONTENT=$(cat ./github/workflows/benchmark-pr-template.txt)
+          CONTENT=$(cat ./scripts/benchmark-pr-template.txt)
           CONTENT=$(echo "$CONTENT" | envsubst)
           echo $CONTENT >> "$GITHUB_STEP_SUMMARY"
           echo "::set-output name=content::$CONTENT"
