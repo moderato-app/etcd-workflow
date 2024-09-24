@@ -69,13 +69,13 @@ jobs:
         id: set_content
         run: |
           CONTENT=""
-          CONTENT+="[archive.zip]($CSV_FILE_PREFIX/$ZIP_OBJECT_NAME)"
+          CONTENT+="[archive.zip]($CSV_FILE_PREFIX/$ZIP_OBJECT_NAME)\n\n"
           for job in $JOBS; do
-            CONTENT+="### $job"
+            CONTENT+="## $job\n\n"
             varname=COMPARE_READ_OBJECT_NAME_$job
-            CONTENT+="![]($CSV_FILE_PREFIX/${!varname})"
+            CONTENT+="![]($CSV_FILE_PREFIX/${!varname})\n"
             varname=COMPARE_WRITE_OBJECT_NAM_$job
-            CONTENT+="![]($CSV_FILE_PREFIX/${!varname})"
+            CONTENT+="![]($CSV_FILE_PREFIX/${!varname})\n"
           done
           echo $CONTENT >> "$GITHUB_STEP_SUMMARY"
           echo "::set-output name=content::$CONTENT"
