@@ -21,7 +21,9 @@ jobs:
           CONTENT=$(cat ./scripts/benchmark-pr-template.txt)
           CONTENT=$(echo "$CONTENT" | envsubst)
           echo $CONTENT >> "$GITHUB_STEP_SUMMARY"
-          echo "::set-output name=content::$CONTENT"
+          echo "content<<EOF" >> $GITHUB_ENV
+          echo "$CONTENT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
       - name: 'comment PR'
         uses: actions/github-script@v7
         with:
