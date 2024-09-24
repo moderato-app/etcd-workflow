@@ -26,12 +26,3 @@ jobs:
               repo: context.repo.repo,
               body: '👋 Thanks for reporting!'
             })
-            const fs = require('fs')
-            const summary = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8')
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: summary
-            })
-

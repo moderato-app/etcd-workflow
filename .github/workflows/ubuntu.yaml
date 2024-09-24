@@ -65,17 +65,21 @@ jobs:
             echo "COMPARE_WRITE_OBJECT_NAM_$job=etcd-benchmark-$DATE-$job-write.jpg" >> $GITHUB_ENV
           done
       - name: print md
+        id: set_content
         run: |
-          echo "[archive.zip]($CSV_FILE_PREFIX/$ZIP_OBJECT_NAME)" >> "$GITHUB_STEP_SUMMARY"
+          CONTENT=""
+          CONTENT+="[archive.zip]($CSV_FILE_PREFIX/$ZIP_OBJECT_NAME)"
           for job in $JOBS; do
-            echo "### $job" >> "$GITHUB_STEP_SUMMARY"
+            CONTENT+="### $job"
             varname=COMPARE_READ_OBJECT_NAME_$job
-            echo "![]($CSV_FILE_PREFIX/${!varname})" >> "$GITHUB_STEP_SUMMARY"
+            CONTENT+="![]($CSV_FILE_PREFIX/${!varname})"
             varname=COMPARE_WRITE_OBJECT_NAM_$job
-            echo "![]($CSV_FILE_PREFIX/${!varname})" >> "$GITHUB_STEP_SUMMARY"
+            CONTENT+="![]($CSV_FILE_PREFIX/${!varname})"
           done
-          cat <<EOL >> "$GITHUB_STEP_SUMMARY"
-          EOL
+          echo $CONTENT >> "$GITHUB_STEP_SUMMARY"
+          echo "EOL" >> "$GITHUB_STEP_SUMMARY"
+          echo "::set-output name=content::$CONTENT"
+
       - name: install wrangler
         run: npm install wrangler
       - name: upload to r2
@@ -92,11 +96,11 @@ jobs:
           done
       - name: 'comment PR'
         uses: actions/github-script@v7
-        if: github.event_name == 'pull_request'
         with:
-          github-token: ${{ secrets.TOKEN_GITHUB }}
           script: |
-            const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
-            const summary = console.log(process.env.GITHUB_STEP_SUMMARY)
-
-            github.issues.createComment({ issue_number, owner, repo, body: summary});
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${{ steps.set_content.outputs.content }}`
+            })
