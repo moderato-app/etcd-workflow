@@ -15,21 +15,21 @@ jobs:
     with:
       runs-on: ubuntu-latest
       branch: main
-      script: benchmark-small.sh
+      script: benchmark-middle.sh
 
   main_again:
     uses: ./.github/workflows/benchmark-template.yaml
     with:
       runs-on: ubuntu-latest
       branch: main
-      script: benchmark-small.sh
+      script: benchmark-middle.sh
 
   pr:
     uses: ./.github/workflows/benchmark-template.yaml
     with:
       runs-on: ubuntu-latest
       branch: ${{ github.event.pull_request.head.ref }}
-      script: benchmark-small.sh
+      script: benchmark-middle.sh
 
   compare:
     permissions: write-all
