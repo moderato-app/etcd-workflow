@@ -46,11 +46,11 @@ jobs:
           echo "${{ needs.main_again.outputs.results }}" |  base64 -d > main_again.csv
           echo "${{ needs.pr.outputs.results }}" |  base64 -d > pr.csv
       - name: build rw-heatmaps
-        run: go build -C etcd/tools/rw-heatmaps
+        run: go build -C tools/rw-heatmaps
       - name: compare
         run: |
           for job in $JOBS; do
-            ./etcd/tools/rw-heatmaps/rw-heatmaps main.csv $job.csv -t "main vs $job" -o $job
+            ./tools/rw-heatmaps/rw-heatmaps main.csv $job.csv -t "main vs $job" -o $job
           done
       - name: zip
         run: zip -r archive.zip *.csv *.jpg ./scripts/*.sh
