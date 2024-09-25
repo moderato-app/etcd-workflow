@@ -1,0 +1,101 @@
+---
+name: ubuntu
+permissions: read-all
+on: [ workflow_dispatch, pull_request ]
+
+env:
+  CSV_FILE_PREFIX: https://pub-95669c22c66d453c92c62f20aa0c5b57.r2.dev
+  BUCKET: github-action
+  BASE: main
+  JOBS: "main_again pr"
+
+jobs:
+  main:
+    uses: ./.github/workflows/benchmark-template.yaml
+    with:
+      runs-on: ubuntu-latest
+      branch: main
+      script: benchmark-middle.sh
+
+  main_again:
+    uses: ./.github/workflows/benchmark-template.yaml
+    with:
+      runs-on: ubuntu-latest
+      branch: main
+      script: benchmark-middle.sh
+
+  pr:
+    uses: ./.github/workflows/benchmark-template.yaml
+    with:
+      runs-on: ubuntu-latest
+      branch: ${{ github.event.pull_request.head.ref }}
+      script: benchmark-middle.sh
+
+  compare:
+    permissions: write-all
+    needs: [ main, pr, main_again ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache-dependency-path: go.sum
+      - name: collect outputs of each jobs
+        run: |
+          echo "${{ needs.main.outputs.results }}" |  base64 -d > main.csv
+          echo "${{ needs.main_again.outputs.results }}" |  base64 -d > main_again.csv
+          echo "${{ needs.pr.outputs.results }}" |  base64 -d > pr.csv
+      - name: build rw-heatmaps
+        run: go build -C tools/rw-heatmaps
+      - name: compare
+        run: |
+          for job in $JOBS; do
+            ./tools/rw-heatmaps/rw-heatmaps main.csv $job.csv -t "main vs $job" -o $job
+          done
+      - name: zip
+        run: zip -r archive.zip *.csv *.jpg ./scripts/*.sh
+      - name: write names to env
+        run: |
+          DATE=$(date '+%Y%m%d-%H-%M-%S')
+          
+          echo "ZIP_OBJECT_NAME=etcd-benchmark-$DATE.zip" >> $GITHUB_ENV
+          
+          for job in $JOBS; do
+            echo "COMPARE_READ_OBJECT_NAME_$job=etcd-benchmark-$DATE-$job-read.jpg" >> $GITHUB_ENV
+            echo "COMPARE_WRITE_OBJECT_NAME_$job=etcd-benchmark-$DATE-$job-write.jpg" >> $GITHUB_ENV
+          done
+      - name: print md
+        id: set_content
+        run: |
+          CONTENT=$(cat ./scripts/benchmark-pr-template.txt)
+          CONTENT=$(echo "$CONTENT" | envsubst)
+          echo $CONTENT >> "$GITHUB_STEP_SUMMARY"
+          echo "content<<EOF" >> $GITHUB_ENV
+          echo "$CONTENT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - name: install wrangler
+        run: npm install wrangler
+      - name: upload to r2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler r2 object put $BUCKET/$ZIP_OBJECT_NAME --file=archive.zip
+          for job in $JOBS; do 
+            varname=COMPARE_READ_OBJECT_NAME_$job
+            npx wrangler r2 object put $BUCKET/${!varname} --file=$job'_read.jpg'
+            varname=COMPARE_WRITE_OBJECT_NAME_$job
+            npx wrangler r2 object put $BUCKET/${!varname} --file=$job'_write.jpg'
+          done
+      - name: 'comment PR'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const content = process.env.content;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: content
+            })

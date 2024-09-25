@@ -1,0 +1,22 @@
+Read-Write Heatmap
+main vs PR:
+<details>
+<summary><kbd>read</kbd></summary>
+<img alt="read" src="$CSV_FILE_PREFIX/$COMPARE_READ_OBJECT_NAME_pr">
+</details>
+<details>
+<summary><kbd>write</kbd></summary>
+<img alt="write" src="$CSV_FILE_PREFIX/$COMPARE_WRITE_OBJECT_NAME_pr">
+</details>
+
+main vs main:
+<details>
+<summary><kbd>read</kbd></summary>
+<img alt="read" src="$CSV_FILE_PREFIX/$COMPARE_READ_OBJECT_NAME_main_again">
+</details>
+<details>
+<summary><kbd>write</kbd></summary>
+<img alt="write" src="$CSV_FILE_PREFIX/$COMPARE_WRITE_OBJECT_NAME_main_again">
+</details>
+
+[archive.zip]($CSV_FILE_PREFIX/$ZIP_OBJECT_NAME)
